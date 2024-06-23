@@ -1,0 +1,45 @@
+import pandas as pd
+import os
+
+# File paths
+input_file_path = 'europarl-v7.de-en.de'
+output_folder = 'german_sentences_excel'
+max_rows_per_file = 1000000  #  Excel's limit 
+
+def process_file_to_excel(input_file, output_folder):
+    print("Reading the file...")
+    
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    sentences = []
+    file_count = 0
+    total_sentences = 0
+    
+    with open(input_file, 'r', encoding='utf-8') as file:
+        for line in file:
+            sentences.append(line.strip())
+            
+            if len(sentences) >= max_rows_per_file:
+                file_count += 1
+                output_file = os.path.join(output_folder, f'german_sentences_{file_count}.xlsx')
+                df = pd.DataFrame(sentences, columns=['German'])
+                df.to_excel(output_file, sheet_name='German_Sentences', index=False)
+                print(f"Saved {len(sentences)} sentences to {output_file}")
+                total_sentences += len(sentences)
+                sentences = []
+    
+    # Save any remaining sentences
+    if sentences:
+        file_count += 1
+        output_file = os.path.join(output_folder, f'german_sentences_{file_count}.xlsx')
+        df = pd.DataFrame(sentences, columns=['German'])
+        df.to_excel(output_file, sheet_name='German_Sentences', index=False)
+        print(f"Saved {len(sentences)} sentences to {output_file}")
+        total_sentences += len(sentences)
+    
+    print(f"Processing complete. Total sentences: {total_sentences}")
+    print(f"Total files created: {file_count}")
+
+# Run the function
+process_file_to_excel(input_file_path, output_folder)
